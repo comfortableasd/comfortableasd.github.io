@@ -10,16 +10,16 @@ main{max-width:1250px;margin:auto;padding:0 22px 44px}.toolbar{display:flex;gap:
 footer{max-width:1250px;margin:auto;padding:0 22px 40px;color:#7f91ad;font-size:12px}
 @media(max-width:850px){.layout{grid-template-columns:1fr}.side{order:2}}@media(max-width:540px){.tile{flex-basis:175px}}
 </style></head><body>
-<header><span class="tag">UNIVERSAL GAME VISION</span><span class="tag">VIDEO RESEARCH</span><h1>Game HUD Video Explorer</h1><p>逐款观察 25 款游戏的真实实机录像，重点研究 HUD、玩家生命值、敌人/Boss 血条、弹药、速度、坐标、任务文本与资源数字。视频由原发布平台托管，本页仅嵌入经确认可游客直接播放的视频；不提供需要登录、年龄验证、会员权限或地区验证的内容。</p></header>
+<header><span class="tag">UNIVERSAL GAME VISION</span><span class="tag">VIDEO RESEARCH</span><h1>Game HUD Video Explorer</h1><p>逐款观察 25 款游戏的真实实机录像，重点研究 HUD、玩家生命值、敌人/Boss 血条、弹药、速度、坐标、任务文本与资源数字。视频由原发布平台托管，本页为 25 款游戏整理了 Bilibili 实机录像候选。Bilibili 的游客播放权限可能因账号、地区、版权和视频设置而变化；网页不能保证每条都免登录，需逐条验证。</p></header>
 <main>
 <div class="toolbar"><input id="search" placeholder="搜索游戏名称 / 开发商 / HUD 关键词"><select id="kind"><option value="all">全部游戏</option><option value="hp">血条重点</option><option value="ocr">OCR 重点</option><option value="both">血条 + OCR</option></select><span class="count" id="count"></span></div>
 <section class="layout">
-<div class="panel"><div class="video" id="video"></div><div class="info"><h2 id="title"></h2><div class="meta" id="meta"></div><div class="chips" id="chips"></div><p id="desc"></p><span class="btn" id="open" aria-live="polite">仅展示已核验可直接播放的视频</span></div></div>
+<div class="panel"><div class="video" id="video"></div><div class="info"><h2 id="title"></h2><div class="meta" id="meta"></div><div class="chips" id="chips"></div><p id="desc"></p><a class="btn" id="open" target="_blank" rel="noopener" aria-live="polite">打开 Bilibili 原视频 ↗</a></div></div>
 <aside class="panel side"><h3>观察任务清单</h3><ul id="tasks"></ul><p class="status">注意：宣传片、过场动画、无 HUD 模式不适合作为主要训练素材。优先选取正常游戏过程、战斗和受伤状态。</p><h3 style="margin-top:22px">标注约定</h3><ul><li>HP：生命值，不包含耐力、护盾、架势或能量。</li><li>OCR：数字、计时、弹药、坐标、比分、任务文本。</li><li>HUD 可切换/动态隐藏时，记录当前设置。</li><li>录像只用于观察与筛选；正式训练前需核验许可与截图来源。</li></ul></aside>
 </section>
 <div class="slider-head"><h3>滑动切换游戏</h3><div class="arrows"><button class="arrow" id="prev">← 上一款</button><button class="arrow" id="next">下一款 →</button></div></div>
 <div class="strip" id="strip"></div>
-</main><footer>Game HUD Video Explorer · Research prototype · 视频来源归原作者/发行商所有。只有经人工确认可游客直接播放的录像才会嵌入；未核验或存在登录/地区/年龄限制的条目显示“待验证”，不提供登录跳转。</footer>
+</main><footer>Game HUD Video Explorer · Research prototype · 视频来源归原作者/发行商所有。视频来源归原作者/发行商所有。页面通过 Bilibili 官方播放器嵌入公开页面，不下载、不重新分发。游客播放、地区和账号限制需逐条实测；无法播放时可查看原视频页面。</footer>
 <script>
 const games=[
 {id:"fallout4",name:"辐射 4",en:"Fallout 4",year:2015,studio:"Bethesda Game Studios",type:"开放世界 RPG / 射击",hp:4,ocr:5,video:null,source:"Full Fallout 4 Walkthrough Gameplay - No Commentary",note:"玩家生命值、辐射/状态、弹药、VATS、任务文字、物品数量。",tasks:["观察左下角 Pip-Boy 状态与 HP 表现","观察弹药数字、武器状态与 VATS UI","记录任务提示、交互文字和物品数量"]},
@@ -54,9 +54,9 @@ function searchUrl(g){return ""; }
 function render(){
  const g=games[current];$("title").textContent=g.name+" / "+g.en;$("meta").textContent=g.year+" · "+g.studio+" · "+g.type;
  $("chips").innerHTML='<span class="chip '+(g.hp>=4?'hp':'')+'">血条价值 '+g.hp+'/5</span><span class="chip '+(g.ocr>=4?'ocr':'')+'">OCR 价值 '+g.ocr+'/5</span><span class="chip">实机录像优先</span>';
- $("desc").textContent=g.note;$("tasks").innerHTML=g.tasks.map(x=>"<li>"+x+"</li>").join("");$("open").href=searchUrl(g);
- if(g.video){$("video").innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+g.video+'" title="'+g.en+' gameplay" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>'}
- else{$("video").innerHTML='<div class="placeholder"><div><b>'+g.en+'</b><p>目前没有已核验为“游客无需登录即可直接播放”的录像。为遵守你的要求，这里不嵌入可能触发登录验证的视频，也不提供登录跳转。</p><span class="tag">待核验免登录录像</span></div></div>'}
+ $("desc").textContent=g.note;$("tasks").innerHTML=g.tasks.map(x=>"<li>"+x+"</li>").join("");
+ if(g.bvid){$("open").href=g.sourceUrl;$("open").textContent="打开 Bilibili 原视频 ↗";$("video").innerHTML='<iframe src="https://player.bilibili.com/player.html?bvid='+g.bvid+'&page=1&high_quality=1&danmaku=0" title="'+g.en+' gameplay" allowfullscreen="true" scrolling="no" frameborder="0" referrerpolicy="no-referrer"></iframe>'}
+ else{$("open").removeAttribute("href");$("open").textContent="暂无已找到的录像";$("video").innerHTML='<div class="placeholder"><div><b>'+g.en+'</b><p>暂未找到可用的 Bilibili 候选视频。</p><span class="tag">待补充资源</span></div></div>'}
  document.querySelectorAll(".tile").forEach((t,i)=>t.classList.toggle("active",i===current));
 }
 function makeTiles(){const q=$("search").value.toLowerCase();const kind=$("kind").value;const strip=$("strip");strip.innerHTML="";let visible=0;
