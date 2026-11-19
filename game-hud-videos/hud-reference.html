@@ -19,7 +19,7 @@ main{max-width:1250px;margin:auto;padding:0 22px 50px}.notice{border:1px solid #
 <div class="summary"><div class="metric"><b>25</b><small>游戏条目</small></div><div class="metric"><b>HP</b><small>生命条及敌人生命条</small></div><div class="metric"><b>OCR</b><small>数字、文本、图标文字</small></div><div class="metric"><b>ROI</b><small>候选区域与易混淆项</small></div></div>
 </header>
 <main>
-<div class="controls"><input id="q" placeholder="搜索游戏、HUD 元素或关键词…"><select id="filter"><option value="all">全部游戏</option><option value="hp">血条价值高</option><option value="ocr">OCR 价值高</option><option value="both">血条 + OCR 都高</option><option value="verify">需要重点实机核验</option></select><span class="muted" id="count"></span></div>
+<div class="controls"><label for="gameSelect" style="font-weight:700;align-self:center">选择游戏：</label><select id="gameSelect" aria-label="选择要查看 HUD 说明的游戏" style="flex:1;min-width:260px;font-size:16px"><option value="">正在载入游戏列表…</option></select><span class="muted" id="count" aria-live="polite"></span></div>
 <div class="grid" id="cards"></div>
 <div class="footer"><b>数据使用与评估建议</b><p>1. 每款游戏至少采集：探索常态、战斗、受伤/低血量、Boss/精英战、菜单/背包、载具或特殊模式（若存在）。2. 同一游戏不同平台和 UI 设置应作为独立 domain metadata。3. ROI 采用原始截图像素坐标，同时保存归一化坐标；记录 HP 与非 HP 的 hard negative。4. 公开网页中的描述不等于截图或视频的训练许可，正式下载、截帧、训练和再分发前应检查权利人许可及平台条款。5. 对于动态 HUD，记录显示触发条件，不要假设元素始终可见。</p><p>研究用途：Universal Game Health Bar / Universal Game OCR · 页面根据公开手册、开发商资料及社区 HUD 文档整理；标注中的“候选 ROI”需要在指定平台实机截图上校准。</p></div>
 </main>
@@ -52,6 +52,19 @@ const G=[
 {n:"25",name:"底特律：变人",en:"Detroit: Become Human",type:"互动剧情 / 冒险",hp:1,ocrScore:5,verify:false,desc:"不适合作为血条训练主样本，但极适合 OCR、字幕、对话选择、QTE 按键图标、倒计时和流程图状态识别。",life:["通常没有传统持续显示的玩家 HP 条。","角色受伤/剧情状态由叙事和场景表现，不等于可量化血条。"],combat:["QTE 按键图标、方向/摇杆动作提示","选择倒计时、分支选择和失败反馈"],map:["章节流程图、场景交互点、角色关系/剧情状态","字幕、对话选择与提示层"],ocrbox:["大量字幕、对话选项、QTE 图标/提示","流程图节点、章节标题和剧情文本"],roi:"血条任务优先级低；作为 OCR 强泛化样本，标注字幕框、选项、QTE 图标和倒计时。不要人为标注不存在的 HP ROI。",src:[["Quantic Dream 官方游戏页面","https://www.quanticdream.com/en/detroit-become-human"]]}
 ];
 function card(g){return '<article class="game" data-hp="'+g.hp+'" data-ocr="'+g.ocrScore+'" data-verify="'+g.verify+'"><div class="gamehead"><div><div class="num">GAME '+g.n+' · '+g.type+'</div><h2>'+g.name+'</h2><div class="muted">'+g.en+'</div></div><div class="badges"><span class="badge hp">HP '+g.hp+'/5</span><span class="badge ocr">OCR '+g.ocrScore+'/5</span>'+(g.verify?'<span class="badge verify">需实机复核</span>':'')+'</div></div><div class="body"><p class="desc">'+g.desc+'</p><div class="sections"><section class="section"><h3>生命与状态条</h3><ul>'+g.life.map(x=>'<li>'+x+'</li>').join('')+'</ul></section><section class="section"><h3>战斗与目标 HUD</h3><ul>'+g.combat.map(x=>'<li>'+x+'</li>').join('')+'</ul></section><section class="section"><h3>地图与导航</h3><ul>'+g.map.map(x=>'<li>'+x+'</li>').join('')+'</ul></section><section class="section"><h3>OCR 目标</h3><ul>'+g.ocrbox.map(x=>'<li>'+x+'</li>').join('')+'</ul></section></div><div class="roi"><b>血条 ROI 建议：</b>'+g.roi+'</div><div class="source">'+g.src.map(s=>'<a href="'+s[1]+'" target="_blank" rel="noopener">'+s[0]+' ↗</a>').join('')+'</div></div></article>'}
-function render(){const q=document.getElementById('q').value.toLowerCase(),f=document.getElementById('filter').value;let a=G.filter(g=>(g.name+g.en+g.type+g.desc+g.life.join(' ')+g.combat.join(' ')+g.map.join(' ')+g.ocrbox.join(' ')).toLowerCase().includes(q)&&(f==='all'||(f==='hp'&&g.hp>=4)||(f==='ocr'&&g.ocrScore>=4)||(f==='both'&&g.hp>=4&&g.ocrScore>=4)||(f==='verify'&&g.verify)));document.getElementById('cards').innerHTML=a.length?a.map(card).join(''):'<div class="empty">没有匹配结果</div>';document.getElementById('count').textContent=a.length+' / 25 款'}
-document.getElementById('q').addEventListener('input',render);document.getElementById('filter').addEventListener('change',render);render();
+function render(){
+ const select=document.getElementById('gameSelect');
+ const index=Number(select.value||0);
+ const g=G[index]||G[0];
+ document.getElementById('cards').innerHTML=card(g);
+ document.getElementById('count').textContent='第 '+(index+1)+' / '+G.length+' 款';
+}
+function initGameSelector(){
+ const select=document.getElementById('gameSelect');
+ select.innerHTML=G.map((g,i)=>'<option value="'+i+'">'+g.n+' · '+g.name+' ('+g.en+')</option>').join('');
+ select.value='0';
+ select.addEventListener('change',render);
+ render();
+}
+initGameSelector();
 </script></body></html>
